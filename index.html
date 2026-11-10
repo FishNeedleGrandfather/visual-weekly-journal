@@ -50,9 +50,9 @@ Y=\eta_0(J_{\mathrm{MoM}}-J_{\mathrm{PO}}).
 $$</div>
 <p>几何、边、聚类和入射角数据不变；这次只改变电流的数值尺度。因此旧、新数据集上的 MSE loss 不能直接横向比较，物理电流的相对误差可以按同一口径比较。</p>
 <h2>2. 入射支路</h2>
-<p>V7 在每个 G0 三角元构造 14 维入射特征：传播方向 $\hat{k}$ 的 3 维、$\hat{k}\otimes n_i$ 的 9 维，以及 $\cos(k_0\hat{k}\cdot c_i)$、$\sin(k_0\hat{k}\cdot c_i)$ 的 2 维。其中 $c_i$ 为中心、$n_i$ 为法向。特征经 <code>14 -&gt; 128 -&gt; 128 -&gt; 512</code> 的 ReLU MLP，拆成两个 256 维调制量 $\gamma_{\rm src},\beta_{\rm src}$。PO 电流编码得到 $h_i\in\mathbb R^{256}$ 后，执行</p>
+<p>V7 在每个 G0 三角元构造 14 维入射特征：传播方向 $\hat{k}$ 的 3 维、$\hat{k}\otimes n_i$ （$(a_x,a_y,a_z)\otimes (b_x,b_y,b_z)=(a_xb_x,a_xb_y,a_xb_z, a_yb_x,a_yb_y,a_yb_z, a_zb_x,a_zb_y,a_zb_z)$）的 9 维，以及 $\cos(k_0\hat{k}\cdot c_i)$、$\sin(k_0\hat{k}\cdot c_i)$ 的 2 维。其中 $c_i$ 为中心、$n_i$ 为法向。特征经 <code>14 -&gt; 128 -&gt; 128 -&gt; 512</code> 的 ReLU MLP，拆成两个 256 维调制量 $\gamma_{\rm src},\beta_{\rm src}$。PO 电流编码得到 $h_i\in\mathbb R^{256}$ 后，执行</p>
 <div class="math-block">$$h_i\leftarrow h_i+h_i\odot\gamma_{\rm src,i}+\beta_{\rm src,i}.$$</div>
-<p>这里 $\odot$ 是逐元素相乘（$(a_x,a_y,a_z)\odot(b_x,b_y,b_z)=(a_xb_x,a_xb_y,a_xb_z, a_yb_x,a_yb_y,a_yb_z, a_zb_x,a_zb_y,a_zb_z)$）；它让入射方向、表面朝向和相位在进入局部信息交流前作用于 PO 特征。最后一层零初始化，使训练起点不受新支路扰动。</p>
+<p>这里 $\odot$ 是逐元素相乘；它让入射方向、表面朝向和相位在进入局部信息交流前作用于 PO 特征。最后一层零初始化，使训练起点不受新支路扰动。</p>
 <h2>3. 几何支路</h2>
 <p>每个 G0 节点的 10 维输入为：中心坐标 3 维、法向 3 维、面积 1 维、G0 邻域及所属 G1/G2 簇邻域的法向变化各 1 维。邻域变化用 $1-n_i\cdot n_j$ 在几何边上取平均；G1/G2 的统计值再广播回各自的 G0 子节点。此设计使节点获得局部及较粗尺度的几何转折信息。</p>
 <p>几何输入经 <code>10 -&gt; 128 -&gt; 128 -&gt; 512</code> 的 ReLU MLP，也拆成 $\gamma_{\rm geo},\beta_{\rm geo}\in\mathbb R^{256}$，在入射支路之后执行</p>
