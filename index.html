@@ -28,6 +28,8 @@
     tbody tr:hover { background: #f7faf9; }
     img { max-width: 100%; height: auto; }
     .math-block { overflow-x: auto; padding: 6px 0; }
+    .home-link { display: inline-flex; align-items: center; margin-bottom: 18px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 5px; background: #f7faf9; color: #19745e; font-size: 13px; font-weight: 650; text-decoration: none; }
+    .home-link:hover, .home-link:focus-visible { border-color: #9fc5b9; background: #eaf4f0; outline: none; }
     @media (max-width: 680px) { main { padding: 22px 14px 50px; } h1 { font-size: 23px; } h2 { font-size: 18px; } }
 
     html { scroll-behavior: smooth; }
@@ -39,7 +41,7 @@
     .journal-sidebar a:hover, .journal-sidebar a:focus-visible { background: #e7f1ed; color: #19745e; outline: none; }
     .journal-layout main { width: 100%; min-width: 0; }
     .journal-layout h1 { scroll-margin-top: 24px; }
-    .journal-layout h1:not(:first-child) { margin-top: 58px; padding-top: 26px; border-top: 2px solid var(--line); }
+    .journal-layout main > h1 ~ h1 { margin-top: 58px; padding-top: 26px; border-top: 2px solid var(--line); }
     @media (max-width: 760px) {
       .journal-layout { display: block; }
       .journal-sidebar { position: sticky; z-index: 2; height: auto; padding: 8px 12px; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -52,7 +54,7 @@
   <script>window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}, svg: {fontCache: 'global'}};</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-<body><div class="journal-layout"><aside class="journal-sidebar"><p class="journal-sidebar-title">周志目录</p><nav aria-label="周志目录"><a href="#week-2026-11-10">周志 2026/11/10</a><a href="#week-2026-11-16">周志 2026/11/16</a></nav></aside><main><h1 id="week-2026-11-10">周志 2026/11/10</h1>
+<body><div class="journal-layout"><aside class="journal-sidebar"><p class="journal-sidebar-title">周志目录</p><nav aria-label="周志目录"><a href="#week-2026-11-10">周志 2026/11/10</a><a href="#week-2026-11-16">周志 2026/11/16</a></nav></aside><main><a class="home-link" href="https://fishneedlegrandfather.github.io/visual/">← 返回首页</a><h1 id="week-2026-11-10">周志 2026/11/10</h1>
 <h2>1. 统一电流归一化</h2>
 <p>过去每个样本用自身 PO 电流的平均幅值确定缩放系数。记三角元的 PO、MoM 复电流为 $J_{\mathrm{PO}}$、$J_{\mathrm{MoM}}$，将实部和虚部按三个笛卡尔分量展开为 6 维向量，则旧方案为</p>
 <div class="math-block">$$
