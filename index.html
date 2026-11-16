@@ -29,12 +29,30 @@
     img { max-width: 100%; height: auto; }
     .math-block { overflow-x: auto; padding: 6px 0; }
     @media (max-width: 680px) { main { padding: 22px 14px 50px; } h1 { font-size: 23px; } h2 { font-size: 18px; } }
+
+    html { scroll-behavior: smooth; }
+    .journal-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); max-width: 1680px; margin: 0 auto; }
+    .journal-sidebar { position: sticky; top: 0; align-self: start; height: 100vh; padding: 30px 16px; border-right: 1px solid var(--line); background: #f7faf9; }
+    .journal-sidebar-title { margin: 0 0 14px; padding: 0 10px; color: var(--muted); font-size: 13px; font-weight: 650; }
+    .journal-sidebar nav { display: grid; gap: 5px; }
+    .journal-sidebar a { display: block; padding: 10px; border-radius: 5px; color: var(--ink); font-size: 14px; text-decoration: none; }
+    .journal-sidebar a:hover, .journal-sidebar a:focus-visible { background: #e7f1ed; color: #19745e; outline: none; }
+    .journal-layout main { width: 100%; min-width: 0; }
+    .journal-layout h1 { scroll-margin-top: 24px; }
+    .journal-layout h1:not(:first-child) { margin-top: 58px; padding-top: 26px; border-top: 2px solid var(--line); }
+    @media (max-width: 760px) {
+      .journal-layout { display: block; }
+      .journal-sidebar { position: sticky; z-index: 2; height: auto; padding: 8px 12px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .journal-sidebar-title { display: none; }
+      .journal-sidebar nav { display: flex; gap: 6px; overflow-x: auto; }
+      .journal-sidebar a { white-space: nowrap; padding: 6px 10px; }
+      .journal-layout h1 { scroll-margin-top: 68px; }
+    }
   </style>
   <script>window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}, svg: {fontCache: 'global'}};</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-<body><main><h1>Weekly Journal</h1>
-<p><strong>日期：2026/11/10</strong></p>
+<body><div class="journal-layout"><aside class="journal-sidebar"><p class="journal-sidebar-title">周志目录</p><nav aria-label="周志目录"><a href="#week-2026-11-10">周志 2026/11/10</a><a href="#week-2026-11-16">周志 2026/11/16</a></nav></aside><main><h1 id="week-2026-11-10">周志 2026/11/10</h1>
 <h2>1. 统一电流归一化</h2>
 <p>过去每个样本用自身 PO 电流的平均幅值确定缩放系数。记三角元的 PO、MoM 复电流为 $J_{\mathrm{PO}}$、$J_{\mathrm{MoM}}$，将实部和虚部按三个笛卡尔分量展开为 6 维向量，则旧方案为</p>
 <div class="math-block">$$
@@ -242,7 +260,7 @@ $$</div>
 <p>两组消融（入射/几何支路、MG 内的两条交流支路）表明 <strong>当前已训练权重依赖这些通路</strong>。这不是从头训练的架构比较：关闭通路后若继续训练，loss 或 error 能否降回去，仍需另做实验。</p>
 <h2>8. 扩充角度仿真</h2>
 <p>开始以五个 case 和 <code>case_single</code> 扩充入射角：$\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$，每个几何共 <strong>629</strong> 组方向，分别求解配对的 MoM 与 PO 电流。当前仍在工作站仿真阶段；尚未将未完成的输出构建为新 dataset，角度及几何划分将在原始数据齐备后另行确定。</p>
-<h1>本周进展（2026/11/16）</h1>
+<h1 id="week-2026-11-16">周志 2026/11/16</h1>
 <h2>1. 全角度训练</h2>
 <p>五个固定几何采用 1 GHz、同一极化和统一 $\eta_0$ 归一化；每几何有 $\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$ 的 629 个方向。训练 V7 使用 <code>MG_num=4</code>，预测 MoM 相对 PO 的六维复电流修正量。</p>
 <div class="table-scroll"><table>
@@ -390,5 +408,5 @@ $$</div>
 <p>另对未纳入上述五族变体训练的 SLICY 几何进行了纯推理测试。SLICY 数据集是 1 GHz、74,762 个三角元、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向，使用相同的 $\eta_0$ 归一化。页面中的电流着色采用三个笛卡尔实部分量的范数 $\|\operatorname{Re}J\|_2$；电流相对误差则使用完整六维复电流。该测试与五族变体的角度/几何划分不同，应单列为新几何泛化观察。</p>
 <p>V7comb 第 100 轮最佳参数在这 19 个方向上的逐样本平均相对误差为 <strong>53.12%</strong>，同批样本 PO 基线为 <strong>65.03%</strong>。此结果是 SLICY 的独立几何测试，并不等于对全部新 CAD 族的泛化结论。</p>
 <p>单站 RCS 也以这 19 个方向的 MoM 曲线为参照，逐方向求 dBsm 差值后计算 RMSE：PO 为 <strong>17.21 dB</strong>，V7comb 预测为 <strong>3.82 dB</strong>，降低 <strong>13.40 dB</strong>（约 <strong>77.83%</strong>）。图中三条曲线均由三角元复电流进行远场积分估算，并非 FEKO 原生远场文件。</p>
-<p><img alt="SLICY 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_slicy_comb.png"/></p></main></body>
+<p><img alt="SLICY 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_slicy_comb.png"/></p></main></div></body>
 </html>
