@@ -244,10 +244,148 @@ $$</div>
 <p>开始以五个 case 和 <code>case_single</code> 扩充入射角：$\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$，每个几何共 <strong>629</strong> 组方向，分别求解配对的 MoM 与 PO 电流。当前仍在工作站仿真阶段；尚未将未完成的输出构建为新 dataset，角度及几何划分将在原始数据齐备后另行确定。</p>
 <h1>本周进展（2026/11/16）</h1>
 <h2>1. 全角度训练</h2>
-<p>五个固定几何的全角度数据集采用 1 GHz、相同极化与统一 $\eta_0$ 归一化。每个几何覆盖 $\theta=10^\circ,15^\circ,\ldots,90^\circ$ 与 $\phi=0^\circ,5^\circ,\ldots,180^\circ$，共 629 个入射方向。V7 网络用 <code>MG_num=4</code> 学习 MoM 相对 PO 的六维复电流修正量；训练方向每几何 171 个，验证方向 24 个。最佳 <code>case1_1ghz_bestV7_eta_all.pt</code> 在第 204 轮，验证 MSE 为 0.01475297。其余角度在页面中作为方向扫描展示，不能据此称为新几何测试。</p>
+<p>五个固定几何采用 1 GHz、同一极化和统一 $\eta_0$ 归一化；每几何有 $\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$ 的 629 个方向。训练 V7 使用 <code>MG_num=4</code>，预测 MoM 相对 PO 的六维复电流修正量。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>方向划分</th>
+<th style="text-align: right;">每几何</th>
+<th style="text-align: right;">五几何合计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练</td>
+<td>$\theta=10^\circ:10^\circ:90^\circ$；$\phi=0^\circ:10^\circ:180^\circ$</td>
+<td style="text-align: right;">171</td>
+<td style="text-align: right;">855</td>
+</tr>
+<tr>
+<td>验证</td>
+<td>$\theta\in\{15^\circ,35^\circ,65^\circ,85^\circ\}$；$\phi\in\{15^\circ,45^\circ,75^\circ,105^\circ,135^\circ,165^\circ\}$</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">120</td>
+</tr>
+<tr>
+<td>其余方向</td>
+<td>不进入此次训练或验证的方向</td>
+<td style="text-align: right;">434</td>
+<td style="text-align: right;">2170</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th style="text-align: right;">最佳 epoch</th>
+<th style="text-align: right;">当轮 train MSE</th>
+<th style="text-align: right;">最佳 val MSE</th>
+<th style="text-align: right;">末轮 train / val MSE</th>
+<th>复电流相对 error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">204</td>
+<td style="text-align: right;">0.001554014</td>
+<td style="text-align: right;"><strong>0.01475297</strong></td>
+<td style="text-align: right;">0.001094989 / 0.01486498（第 464 轮）</td>
+<td>record 尚未给出该训练/验证集的复算值</td>
+</tr>
+</tbody>
+</table></div>
+<p><img alt="全角度 V7 训练与验证 loss 曲线" src="assets/loss_curves/experiment_19_average.png"/></p>
+<p>数据与数值沿用 <code>record.md</code> 的“全角度数据集训练”和“序号19”记录。未用 MSE 推算电流相对 error。</p>
 <h2>2. 多变体训练</h2>
-<p>五个 CAD 族各有 20 个参数变体，共 100 个几何。每个几何仿真 93 个方向：训练角度 X 为 $\theta=35^\circ,45^\circ,55^\circ$、$\phi=0^\circ:10^\circ:180^\circ$，共 57 个；验证角度 V 为 $\theta=40^\circ,50^\circ$、$\phi=5^\circ:10^\circ:85^\circ$，共 18 个；另 18 个测试角度 C 为 $\theta=40^\circ,50^\circ$、$\phi=95^\circ:10^\circ:175^\circ$。每个 CAD 族的变体 01–12 属于训练几何 X，13–15 属于验证几何 V，16–20 属于留出几何 C。<code>datasetXVXA</code> 表示训练几何、训练角度；文件名首个 X/V/C 是几何分组，末尾 X/V/C 是角度分组，中间的 V、A 是变体/角度标记。</p>
-<p><code>trainV7A.py</code> 从全角度最佳参数初始化，在 <code>datasetXVXA.pt</code> 的 3420 个样本上训练，使用 <code>datasetVVVA.pt</code> 和 <code>datasetVVCA.pt</code> 的共 540 个样本选取最佳参数。这次训练的 V 与 C 角度都参与验证选择，因此 <code>VVCA</code> 不是独立最终测试集。最佳 <code>case1_1ghz_bestV7_eta_comb.pt</code> 在第 100 轮，训练 MSE 0.00405207、验证 MSE 0.03843725。两个训练阶段的样本分布不同，MSE 不应当作相同验证集直接比较。</p>
+<p>五个 CAD 族各有 20 个参数变体，共 100 个几何。每个几何在 1 GHz、同一极化和 $\eta_0$ 归一化下仿真 93 个方向。文件名中首个 X/V/C 表示几何组，末尾 X/V/C 表示角度组，例如 <code>datasetXVXA</code> 是训练几何的训练角度。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>X：训练组</th>
+<th>V：验证组</th>
+<th>C：留出组</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>几何变体（每个 CAD 族）</td>
+<td>01–12，共 12 个</td>
+<td>13–15，共 3 个</td>
+<td>16–20，共 5 个</td>
+</tr>
+<tr>
+<td>入射方向（每个变体）</td>
+<td>$\theta\in\{35^\circ,45^\circ,55^\circ\}$，$\phi=0^\circ:10^\circ:180^\circ$，57 个</td>
+<td>$\theta\in\{40^\circ,50^\circ\}$，$\phi=5^\circ:10^\circ:85^\circ$，18 个</td>
+<td>$\theta\in\{40^\circ,50^\circ\}$，$\phi=95^\circ:10^\circ:175^\circ$，18 个</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>训练用途</th>
+<th>数据集</th>
+<th style="text-align: right;">样本数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练</td>
+<td><code>datasetXVXA.pt</code></td>
+<td style="text-align: right;">3420</td>
+<td>60 个 X 几何 × 57 个 X 角度</td>
+</tr>
+<tr>
+<td>验证选参</td>
+<td><code>datasetVVVA.pt</code></td>
+<td style="text-align: right;">270</td>
+<td>15 个 V 几何 × 18 个 V 角度</td>
+</tr>
+<tr>
+<td>验证选参</td>
+<td><code>datasetVVCA.pt</code></td>
+<td style="text-align: right;">270</td>
+<td>15 个 V 几何 × 18 个 C 角度</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>trainV7A.py</code> 从全角度最佳参数初始化。下表的 error 使用完整复电流，先逐样本计算相对 Frobenius 范数，再对样本取平均；loss 是归一化修正量 MSE。数值取自 <code>record.md</code> 的“多变体 V7comb”记录。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>数据</th>
+<th style="text-align: right;">PO 相对 error</th>
+<th style="text-align: right;">V7comb 预测相对 error</th>
+<th style="text-align: right;">修正量 MSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VVVA（270 样本）</td>
+<td style="text-align: right;">72.04%</td>
+<td style="text-align: right;"><strong>30.18%</strong></td>
+<td style="text-align: right;">0.038463847</td>
+</tr>
+<tr>
+<td>VVCA（270 样本）</td>
+<td style="text-align: right;">71.86%</td>
+<td style="text-align: right;"><strong>30.20%</strong></td>
+<td style="text-align: right;">0.038410645</td>
+</tr>
+<tr>
+<td>合并验证集（540 样本）</td>
+<td style="text-align: right;">71.95%</td>
+<td style="text-align: right;"><strong>30.19%</strong></td>
+<td style="text-align: right;"><strong>0.038437246</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>最佳 checkpoint 在第 100 轮，训练 MSE 为 <strong>0.004052070</strong>，最佳验证 MSE 为 <strong>0.038437246</strong>。<code>VVCA</code> 已用于选参，不能作为独立最终测试集；训练集的复电流相对 error 尚未复算。两次训练的数据分布不同，不能把 loss 当作同一验证集直接比较。</p>
+<p><img alt="多变体 V7comb 训练与验证 loss 曲线" src="assets/weekly_journal/v7comb_loss.png"/></p>
 <h2>3. SLICY 泛化尝试</h2>
 <p>另对未纳入上述五族变体训练的 SLICY 几何进行了纯推理测试。SLICY 数据集是 1 GHz、74,762 个三角元、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向，使用相同的 $\eta_0$ 归一化。页面中的电流着色采用三个笛卡尔实部分量的范数 $\|\operatorname{Re}J\|_2$；电流相对误差则使用完整六维复电流。该测试与五族变体的角度/几何划分不同，应单列为新几何泛化观察。</p>
 <p>V7comb 第 100 轮最佳参数在这 19 个方向上的逐样本平均相对误差为 <strong>53.12%</strong>，同批样本 PO 基线为 <strong>65.03%</strong>。此结果是 SLICY 的独立几何测试，并不等于对全部新 CAD 族的泛化结论。</p></main></body>
