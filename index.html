@@ -50,9 +50,9 @@ Y=\eta_0(J_{\mathrm{MoM}}-J_{\mathrm{PO}}).
 $$</div>
 <p>几何、边、聚类和入射角数据不变；这次只改变电流的数值尺度。因此旧、新数据集上的 MSE loss 不能直接横向比较，物理电流的相对误差可以按同一口径比较。</p>
 <h2>2. 入射支路</h2>
-<p>V7 在每个 G0 三角元构造 14 维入射特征：传播方向 $\hat{k}$ 的 3 维、$\hat{k}\otimes n_i$ （$(a_x,a_y,a_z)\otimes (b_x,b_y,b_z)=(a_xb_x,a_xb_y,a_xb_z, a_yb_x,a_yb_y,a_yb_z, a_zb_x,a_zb_y,a_zb_z)$）的 9 维，以及 $\cos(k_0\hat{k}\cdot c_i)$、$\sin(k_0\hat{k}\cdot c_i)$ 的 2 维。其中 $c_i$ 为中心、$n_i$ 为法向。特征经 <code>14 -&gt; 128 -&gt; 128 -&gt; 512</code> 的 ReLU MLP，拆成两个 256 维调制量 $\gamma_{\rm src},\beta_{\rm src}$。PO 电流编码得到 $h_i\in\mathbb R^{256}$ 后，执行</p>
+<p>V7 在每个 G0 三角元构造 14 维入射特征：传播方向 $\hat{k}$ 的 3 维、$\hat{k}\otimes n_i$ 的 9 维，以及 $\cos(k_0\hat{k}\cdot c_i)$、$\sin(k_0\hat{k}\cdot c_i)$ 的 2 维。其中 $c_i$ 为中心、$n_i$ 为法向。特征经 <code>14 -&gt; 128 -&gt; 128 -&gt; 512</code> 的 ReLU MLP，拆成两个 256 维调制量 $\gamma_{\rm src},\beta_{\rm src}$。PO 电流编码得到 $h_i\in\mathbb R^{256}$ 后，执行</p>
 <div class="math-block">$$h_i\leftarrow h_i+h_i\odot\gamma_{\rm src,i}+\beta_{\rm src,i}.$$</div>
-<p>这里 $\odot$ 是逐元素相乘；它让入射方向、表面朝向和相位在进入局部信息交流前作用于 PO 特征。最后一层零初始化，使训练起点不受新支路扰动。</p>
+<p>这里 $\odot$ 是逐元素相乘（$(a_x,a_y,a_z)\odot(b_x,b_y,b_z)=(a_xb_x,a_xb_y,a_xb_z, a_yb_x,a_yb_y,a_yb_z, a_zb_x,a_zb_y,a_zb_z)$）；它让入射方向、表面朝向和相位在进入局部信息交流前作用于 PO 特征。最后一层零初始化，使训练起点不受新支路扰动。</p>
 <h2>3. 几何支路</h2>
 <p>每个 G0 节点的 10 维输入为：中心坐标 3 维、法向 3 维、面积 1 维、G0 邻域及所属 G1/G2 簇邻域的法向变化各 1 维。邻域变化用 $1-n_i\cdot n_j$ 在几何边上取平均；G1/G2 的统计值再广播回各自的 G0 子节点。此设计使节点获得局部及较粗尺度的几何转折信息。</p>
 <p>几何输入经 <code>10 -&gt; 128 -&gt; 128 -&gt; 512</code> 的 ReLU MLP，也拆成 $\gamma_{\rm geo},\beta_{\rm geo}\in\mathbb R^{256}$，在入射支路之后执行</p>
@@ -241,5 +241,14 @@ $$</div>
 </table></div>
 <p>两组消融（入射/几何支路、MG 内的两条交流支路）表明 <strong>当前已训练权重依赖这些通路</strong>。这不是从头训练的架构比较：关闭通路后若继续训练，loss 或 error 能否降回去，仍需另做实验。</p>
 <h2>8. 扩充角度仿真</h2>
-<p>开始以五个 case 和 <code>case_single</code> 扩充入射角：$\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$，每个几何共 <strong>629</strong> 组方向，分别求解配对的 MoM 与 PO 电流。当前仍在工作站仿真阶段；尚未将未完成的输出构建为新 dataset，角度及几何划分将在原始数据齐备后另行确定。</p></main></body>
+<p>开始以五个 case 和 <code>case_single</code> 扩充入射角：$\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$，每个几何共 <strong>629</strong> 组方向，分别求解配对的 MoM 与 PO 电流。当前仍在工作站仿真阶段；尚未将未完成的输出构建为新 dataset，角度及几何划分将在原始数据齐备后另行确定。</p>
+<h1>本周进展（2026/11/16）</h1>
+<h2>1. 全角度训练</h2>
+<p>五个固定几何的全角度数据集采用 1 GHz、相同极化与统一 $\eta_0$ 归一化。每个几何覆盖 $\theta=10^\circ,15^\circ,\ldots,90^\circ$ 与 $\phi=0^\circ,5^\circ,\ldots,180^\circ$，共 629 个入射方向。V7 网络用 <code>MG_num=4</code> 学习 MoM 相对 PO 的六维复电流修正量；训练方向每几何 171 个，验证方向 24 个。最佳 <code>case1_1ghz_bestV7_eta_all.pt</code> 在第 204 轮，验证 MSE 为 0.01475297。其余角度在页面中作为方向扫描展示，不能据此称为新几何测试。</p>
+<h2>2. 多变体训练</h2>
+<p>五个 CAD 族各有 20 个参数变体，共 100 个几何。每个几何仿真 93 个方向：训练角度 X 为 $\theta=35^\circ,45^\circ,55^\circ$、$\phi=0^\circ:10^\circ:180^\circ$，共 57 个；验证角度 V 为 $\theta=40^\circ,50^\circ$、$\phi=5^\circ:10^\circ:85^\circ$，共 18 个；另 18 个测试角度 C 为 $\theta=40^\circ,50^\circ$、$\phi=95^\circ:10^\circ:175^\circ$。每个 CAD 族的变体 01–12 属于训练几何 X，13–15 属于验证几何 V，16–20 属于留出几何 C。<code>datasetXVXA</code> 表示训练几何、训练角度；文件名首个 X/V/C 是几何分组，末尾 X/V/C 是角度分组，中间的 V、A 是变体/角度标记。</p>
+<p><code>trainV7A.py</code> 从全角度最佳参数初始化，在 <code>datasetXVXA.pt</code> 的 3420 个样本上训练，使用 <code>datasetVVVA.pt</code> 和 <code>datasetVVCA.pt</code> 的共 540 个样本选取最佳参数。这次训练的 V 与 C 角度都参与验证选择，因此 <code>VVCA</code> 不是独立最终测试集。最佳 <code>case1_1ghz_bestV7_eta_comb.pt</code> 在第 100 轮，训练 MSE 0.00405207、验证 MSE 0.03843725。两个训练阶段的样本分布不同，MSE 不应当作相同验证集直接比较。</p>
+<h2>3. SLICY 泛化尝试</h2>
+<p>另对未纳入上述五族变体训练的 SLICY 几何进行了纯推理测试。SLICY 数据集是 1 GHz、74,762 个三角元、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向，使用相同的 $\eta_0$ 归一化。页面中的电流着色采用三个笛卡尔实部分量的范数 $\|\operatorname{Re}J\|_2$；电流相对误差则使用完整六维复电流。该测试与五族变体的角度/几何划分不同，应单列为新几何泛化观察。</p>
+<p>V7comb 第 100 轮最佳参数在这 19 个方向上的逐样本平均相对误差为 <strong>53.12%</strong>，同批样本 PO 基线为 <strong>65.03%</strong>。此结果是 SLICY 的独立几何测试，并不等于对全部新 CAD 族的泛化结论。</p></main></body>
 </html>
