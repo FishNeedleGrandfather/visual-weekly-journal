@@ -388,5 +388,7 @@ $$</div>
 <p><img alt="多变体 V7comb 训练与验证 loss 曲线" src="assets/weekly_journal/v7comb_loss.png"/></p>
 <h2>3. SLICY 泛化尝试</h2>
 <p>另对未纳入上述五族变体训练的 SLICY 几何进行了纯推理测试。SLICY 数据集是 1 GHz、74,762 个三角元、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向，使用相同的 $\eta_0$ 归一化。页面中的电流着色采用三个笛卡尔实部分量的范数 $\|\operatorname{Re}J\|_2$；电流相对误差则使用完整六维复电流。该测试与五族变体的角度/几何划分不同，应单列为新几何泛化观察。</p>
-<p>V7comb 第 100 轮最佳参数在这 19 个方向上的逐样本平均相对误差为 <strong>53.12%</strong>，同批样本 PO 基线为 <strong>65.03%</strong>。此结果是 SLICY 的独立几何测试，并不等于对全部新 CAD 族的泛化结论。</p></main></body>
+<p>V7comb 第 100 轮最佳参数在这 19 个方向上的逐样本平均相对误差为 <strong>53.12%</strong>，同批样本 PO 基线为 <strong>65.03%</strong>。此结果是 SLICY 的独立几何测试，并不等于对全部新 CAD 族的泛化结论。</p>
+<p>单站 RCS 也以这 19 个方向的 MoM 曲线为参照，逐方向求 dBsm 差值后计算 RMSE：PO 为 <strong>17.21 dB</strong>，V7comb 预测为 <strong>3.82 dB</strong>，降低 <strong>13.40 dB</strong>（约 <strong>77.83%</strong>）。图中三条曲线均由三角元复电流进行远场积分估算，并非 FEKO 原生远场文件。</p>
+<p><img alt="SLICY 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_slicy_comb.png"/></p></main></body>
 </html>
