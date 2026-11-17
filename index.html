@@ -54,7 +54,7 @@
   <script>window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}, svg: {fontCache: 'global'}};</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-<body><div class="journal-layout"><aside class="journal-sidebar"><p class="journal-sidebar-title">周志目录</p><nav aria-label="周志目录"><a href="#week-2026-11-10">周志 2026/11/10</a><a href="#week-2026-11-16">周志 2026/11/16</a></nav></aside><main><a class="home-link" href="https://fishneedlegrandfather.github.io/visual/">← 返回首页</a><h1 id="week-2026-11-10">周志 2026/11/10</h1>
+<body><div class="journal-layout"><aside class="journal-sidebar"><p class="journal-sidebar-title">周志目录</p><nav aria-label="周志目录"><a href="#week-2026-11-10">周志 2026/11/10</a><a href="#week-2026-11-17">周志 2026/11/17</a></nav></aside><main><a class="home-link" href="https://fishneedlegrandfather.github.io/visual/">← 返回首页</a><h1 id="week-2026-11-10">周志 2026/11/10</h1>
 <h2>1. 统一电流归一化</h2>
 <p>过去每个样本用自身 PO 电流的平均幅值确定缩放系数。记三角元的 PO、MoM 复电流为 $J_{\mathrm{PO}}$、$J_{\mathrm{MoM}}$，将实部和虚部按三个笛卡尔分量展开为 6 维向量，则旧方案为</p>
 <div class="math-block">$$
@@ -262,7 +262,7 @@ $$</div>
 <p>两组消融（入射/几何支路、MG 内的两条交流支路）表明 <strong>当前已训练权重依赖这些通路</strong>。这不是从头训练的架构比较：关闭通路后若继续训练，loss 或 error 能否降回去，仍需另做实验。</p>
 <h2>8. 扩充角度仿真</h2>
 <p>开始以五个 case 和 <code>case_single</code> 扩充入射角：$\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$，每个几何共 <strong>629</strong> 组方向，分别求解配对的 MoM 与 PO 电流。当前仍在工作站仿真阶段；尚未将未完成的输出构建为新 dataset，角度及几何划分将在原始数据齐备后另行确定。</p>
-<h1 id="week-2026-11-16">周志 2026/11/16</h1>
+<h1 id="week-2026-11-17">周志 2026/11/17</h1>
 <h2>1. 全角度训练</h2>
 <p>五个固定几何采用 1 GHz、同一极化和统一 $\eta_0$ 归一化；每几何有 $\theta=10^\circ:5^\circ:90^\circ$、$\phi=0^\circ:5^\circ:180^\circ$ 的 629 个方向。训练 V7 使用 <code>MG_num=4</code>，预测 MoM 相对 PO 的六维复电流修正量。</p>
 <div class="table-scroll"><table>
@@ -410,5 +410,14 @@ $$</div>
 <p>另对未纳入上述五族变体训练的 SLICY 几何进行了纯推理测试。SLICY 数据集是 1 GHz、74,762 个三角元、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向，使用相同的 $\eta_0$ 归一化。页面中的电流着色采用三个笛卡尔实部分量的范数 $\|\operatorname{Re}J\|_2$；电流相对误差则使用完整六维复电流。该测试与五族变体的角度/几何划分不同，应单列为新几何泛化观察。</p>
 <p>V7comb 第 100 轮最佳参数在这 19 个方向上的逐样本平均相对误差为 <strong>53.12%</strong>，同批样本 PO 基线为 <strong>65.03%</strong>。此结果是 SLICY 的独立几何测试，并不等于对全部新 CAD 族的泛化结论。</p>
 <p>单站 RCS 也以这 19 个方向的 MoM 曲线为参照，逐方向求 dBsm 差值后计算 RMSE：PO 为 <strong>17.21 dB</strong>，V7comb 预测为 <strong>3.82 dB</strong>，降低 <strong>13.40 dB</strong>（约 <strong>77.83%</strong>）。图中三条曲线均由三角元复电流进行远场积分估算，并非 FEKO 原生远场文件。</p>
-<p><img alt="SLICY 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_slicy_comb.png"/></p></main></div></body>
+<p><img alt="SLICY 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_slicy_comb.png"/></p>
+<h2>4. 飞机泛化尝试</h2>
+<p>使用同一个 V7comb 第 100 轮最佳 checkpoint，对训练和验证均未出现过的飞机几何进行纯推理。数据为 1 GHz、12,606 个三角元，固定 $\theta=45^\circ$，$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向。电流 error 使用完整复电流的相对 L2 范数，19 个方向逐样本计算后取平均。</p>
+<p>飞机上的 PO 平均相对 error 为 <strong>64.39%</strong>，V7comb 预测为 <strong>70.77%</strong>，比 PO 反而高 <strong>6.38 个百分点</strong>，说明模型没有正确恢复该几何上的复电流修正量。单站 RCS 以 MoM 为参照的 RMSE 从 PO 的 <strong>8.05 dB</strong> 降至预测的 <strong>5.78 dB</strong>，降低 <strong>2.27 dB</strong>（约 <strong>28.19%</strong>），但远场积分指标的局部改善不能替代完整电流误差。综合判断，这次飞机泛化结果比较失败。</p>
+<p><img alt="飞机单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_feiji_comb.png"/></p>
+<h2>5. single 泛化尝试</h2>
+<p>同一 V7comb checkpoint 也用于新的 <code>case_single</code> 数据。该数据为 1 GHz、12,120 个三角元，固定 $\theta=45^\circ$，$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向；它没有参与 V7comb 的训练或验证，误差口径与飞机测试相同。</p>
+<p><code>case_single</code> 上的 PO 平均相对 error 为 <strong>69.30%</strong>，V7comb 预测降至 <strong>25.03%</strong>，降低 <strong>44.26 个百分点</strong>（相对降低约 <strong>63.88%</strong>）。单站 RCS RMSE 也由 PO 的 <strong>24.26 dB</strong> 降至预测的 <strong>1.48 dB</strong>，降低 <strong>22.78 dB</strong>（约 <strong>93.89%</strong>）。完整复电流与单站 RCS 两项指标均显著改善，因此这次 single 泛化结果比较成功。</p>
+<p><img alt="Case single 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_single_comb.png"/></p>
+<p>上述飞机与 single 图中的 PO、MoM 和预测曲线均由三角元复电流进行远场积分估算，不是 FEKO 原生远场文件；因此这里只在相同积分口径下比较三条曲线。</p></main></div></body>
 </html>
