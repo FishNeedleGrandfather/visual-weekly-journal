@@ -409,8 +409,11 @@ $$</div>
 <h2>3. SLICY 泛化尝试</h2>
 <p>另对未纳入上述五族变体训练的 SLICY 几何进行了纯推理测试。SLICY 数据集是 1 GHz、74,762 个三角元、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向，使用相同的 $\eta_0$ 归一化。页面中的电流着色采用三个笛卡尔实部分量的范数 $\|\operatorname{Re}J\|_2$；电流相对误差则使用完整六维复电流。该测试与五族变体的角度/几何划分不同，应单列为新几何泛化观察。</p>
 <p>V7comb 第 100 轮最佳参数在这 19 个方向上的逐样本平均相对误差为 <strong>53.12%</strong>，同批样本 PO 基线为 <strong>65.03%</strong>。此结果是 SLICY 的独立几何测试，并不等于对全部新 CAD 族的泛化结论。</p>
-<p>单站 RCS 也以这 19 个方向的 MoM 曲线为参照，逐方向求 dBsm 差值后计算 RMSE：PO 为 <strong>17.21 dB</strong>，V7comb 预测为 <strong>3.82 dB</strong>，降低 <strong>13.40 dB</strong>（约 <strong>77.83%</strong>）。图中三条曲线均由三角元复电流进行远场积分估算，并非 FEKO 原生远场文件。</p>
-<p><img alt="SLICY 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_slicy_comb.png"/></p>
+<p>单站 RCS 以这 19 个方向的电流积分 MoM 曲线为参照，在 dBsm 上计算 RMSE：PO 为 <strong>17.21 dB</strong>，V7comb 预测为 <strong>3.82 dB</strong>，FEKO 二次反射为 <strong>3.66 dB</strong>。预测相对 PO 降低 <strong>13.40 dB</strong>（约 <strong>77.83%</strong>）；二次反射比预测再低 <strong>0.16 dB</strong>。PO、MoM 和预测曲线由三角元复电流远场积分估算，二次反射曲线来自 FEKO 原生远场，因此后者主要用于趋势比较，不能视为完全统一计算口径下的严格误差对照。</p>
+<p><strong>完整对比：PO、MoM、V7comb 预测与 FEKO 二次反射。</strong></p>
+<p><img alt="SLICY 单站 RCS 完整对比" src="assets/weekly_journal/monostatic_slicy_comb.png"/></p>
+<p><strong>重点对比：去除 PO 后比较 MoM、V7comb 预测与 FEKO 二次反射。</strong></p>
+<p><img alt="SLICY 单站 RCS 去除 PO 后的对比" src="assets/weekly_journal/monostatic_slicy_comb_no_po.png"/></p>
 <h2>4. 飞机泛化尝试</h2>
 <p>使用同一个 V7comb 第 100 轮最佳 checkpoint，对训练和验证均未出现过的飞机几何进行纯推理。数据为 1 GHz、12,606 个三角元，固定 $\theta=45^\circ$，$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向。电流 error 使用完整复电流的相对 L2 范数，19 个方向逐样本计算后取平均。</p>
 <p>飞机上的 PO 平均相对 error 为 <strong>64.39%</strong>，V7comb 预测为 <strong>70.77%</strong>，比 PO 反而高 <strong>6.38 个百分点</strong>，说明模型没有正确恢复该几何上的复电流修正量。单站 RCS 以 MoM 为参照的 RMSE 从 PO 的 <strong>8.05 dB</strong> 降至预测的 <strong>5.78 dB</strong>，降低 <strong>2.27 dB</strong>（约 <strong>28.19%</strong>），但远场积分指标的局部改善不能替代完整电流误差。综合判断，这次飞机泛化结果比较失败。</p>
