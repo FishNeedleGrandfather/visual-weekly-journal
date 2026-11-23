@@ -425,7 +425,7 @@ $$</div>
 <p>上述飞机与 single 图中的 PO、MoM 和预测曲线均由三角元复电流进行远场积分估算，不是 FEKO 原生远场文件；因此这里只在相同积分口径下比较三条曲线。</p>
 <h1 id="week-2026-11-24">周志 2026/11/24</h1>
 <h2>1. 三个简单模型的迁移训练与 SLICY 验证</h2>
-<p>以 V7comb 最佳参数为起点，加入 <code>LayerCircle</code>、<code>LayerCylinder</code>、<code>ThreeAngle</code> 三个简单几何，与五个原有 CAD 族的训练变体组成 8 个训练几何。每个几何均为 1 GHz、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 的 19 个方向，训练集共 152 个样本。使用 SLICY 的 19 个方向验证并选择 addTrain 参数；因此这里的 SLICY 结果是<strong>验证集表现</strong>，不能称为 addTrain 的独立未见几何测试。</p>
+<p>以 V7comb 最佳参数为起点，加入 <code>LayerCircle</code>、<code>LayerCylinder</code>、<code>ThreeAngle</code> 三个简单几何，与五个原有 CAD 族的训练变体组成 8 个训练几何进行迁移训练。每个几何均为 1 GHz、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 的 19 个方向，训练集共 152 个样本。</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
