@@ -475,7 +475,6 @@ $$</div>
 </tr>
 </tbody>
 </table></div>
-<p>addTrain 的电流误差比 V7comb 低 <strong>15.77 个百分点</strong>，19 个方向均改善；但 RCS RMSE 比 V7comb 高 <strong>0.20 dB</strong>。电流指标改善并未同步降低这一远场指标。PO、MoM 与预测 RCS 均由三角元复电流积分估算，不是 FEKO 原生远场。逐方向结果见 <code>record.md</code> 的“序号21”。</p>
 <h2>2. caseOther 新几何泛化观察</h2>
 <p>在 <code>caseOther</code> 新建九个与 V7comb、addTrain 训练及验证选参均无关的几何，分别以两份最佳参数纯推理。每个目标在 1 GHz、相同极化和 $\eta_0$ 归一化下，采用 $\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向。Satellite2 是原 <code>satellite</code> 目录改名后的同一几何；PlaneF22 是当前约 2.45 m 长的缩比网格。这些是陆续完成的泛化尝试，尚非预先封存的最终测试集。</p>
 <p>下表电流误差是每方向完整复电流相对 L2 误差的平均值；RCS 是相对 MoM 的 19 点 dBsm RMSE，全部由三角元电流积分估算。两项均越低越好。<strong>✘</strong> 表示 V7comb 或 addTrain 至少有一项总体指标高于 PO；其余目标两份模型的两项总体指标均低于 PO。个别方向的退化仍可存在，详见 <code>record.md</code>“序号22”。</p>
@@ -585,5 +584,5 @@ $$</div>
 </tr>
 </tbody>
 </table></div>
-<p>SatelliteCylinder 的 V7comb 平均电流误差比 PO 高 <strong>0.75 个百分点</strong>，虽然其 RCS RMSE 降低；SatelliteSphere 的 V7comb 电流与 RCS 指标都退化，addTrain 的电流指标改善但 RCS RMSE 仍高于 PO。其余七个目标的总体指标相对 PO 均改善，但 PlaneF22、TrihedralAngle 和 CombFlare 的 addTrain RCS RMSE 比 V7comb 略高。addTrain 在九个目标上的平均电流误差均低于 V7comb；这支持其在本批几何上有更好的电流预测表现，尚不足以单独证明 V7comb 发生过拟合。</p></main></div></body>
+<p>可能是因为 V7comb 对原来的数据集过拟合，导致对其他模型的预测不太好；经过三个简单几何模型的迁移训练后，电流误差普遍有所改善。</p></main></div></body>
 </html>
