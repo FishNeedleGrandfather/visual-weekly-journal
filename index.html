@@ -54,7 +54,7 @@
   <script>window.MathJax = {tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}, svg: {fontCache: 'global'}};</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-<body><div class="journal-layout"><aside class="journal-sidebar"><p class="journal-sidebar-title">周志目录</p><nav aria-label="周志目录"><a href="#week-2026-11-10">周志 2026/11/10</a><a href="#week-2026-11-17">周志 2026/11/17</a></nav></aside><main><a class="home-link" href="https://fishneedlegrandfather.github.io/visual/">← 返回首页</a><h1 id="week-2026-11-10">周志 2026/11/10</h1>
+<body><div class="journal-layout"><aside class="journal-sidebar"><p class="journal-sidebar-title">周志目录</p><nav aria-label="周志目录"><a href="#week-2026-11-10">周志 2026/11/10</a><a href="#week-2026-11-17">周志 2026/11/17</a><a href="#week-2026-11-24">周志 2026/11/24</a></nav></aside><main><a class="home-link" href="https://fishneedlegrandfather.github.io/visual/">← 返回首页</a><h1 id="week-2026-11-10">周志 2026/11/10</h1>
 <h2>1. 统一电流归一化</h2>
 <p>过去每个样本用自身 PO 电流的平均幅值确定缩放系数。记三角元的 PO、MoM 复电流为 $J_{\mathrm{PO}}$、$J_{\mathrm{MoM}}$，将实部和虚部按三个笛卡尔分量展开为 6 维向量，则旧方案为</p>
 <div class="math-block">$$
@@ -422,5 +422,168 @@ $$</div>
 <p>同一 V7comb checkpoint 也用于新的 <code>case_single</code> 数据。该数据为 1 GHz、12,120 个三角元，固定 $\theta=45^\circ$，$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向；它没有参与 V7comb 的训练或验证，误差口径与飞机测试相同。</p>
 <p><code>case_single</code> 上的 PO 平均相对 error 为 <strong>69.30%</strong>，V7comb 预测降至 <strong>25.03%</strong>，降低 <strong>44.26 个百分点</strong>（相对降低约 <strong>63.88%</strong>）。单站 RCS RMSE 也由 PO 的 <strong>24.26 dB</strong> 降至预测的 <strong>1.48 dB</strong>，降低 <strong>22.78 dB</strong>（约 <strong>93.89%</strong>）。完整复电流与单站 RCS 两项指标均显著改善，因此这次 single 泛化结果比较成功。</p>
 <p><img alt="Case single 单站 RCS：PO、MoM 与 V7comb 预测" src="assets/weekly_journal/monostatic_single_comb.png"/></p>
-<p>上述飞机与 single 图中的 PO、MoM 和预测曲线均由三角元复电流进行远场积分估算，不是 FEKO 原生远场文件；因此这里只在相同积分口径下比较三条曲线。</p></main></div></body>
+<p>上述飞机与 single 图中的 PO、MoM 和预测曲线均由三角元复电流进行远场积分估算，不是 FEKO 原生远场文件；因此这里只在相同积分口径下比较三条曲线。</p>
+<h1 id="week-2026-11-24">周志 2026/11/24</h1>
+<h2>1. 三个简单模型的迁移训练与 SLICY 验证</h2>
+<p>以 V7comb 最佳参数为起点，加入 <code>LayerCircle</code>、<code>LayerCylinder</code>、<code>ThreeAngle</code> 三个简单几何，与五个原有 CAD 族的训练变体组成 8 个训练几何。每个几何均为 1 GHz、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 的 19 个方向，训练集共 152 个样本。使用 SLICY 的 19 个方向验证并选择 addTrain 参数；因此这里的 SLICY 结果是<strong>验证集表现</strong>，不能称为 addTrain 的独立未见几何测试。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>训练起点</th>
+<th>新增训练几何</th>
+<th style="text-align: right;">训练样本</th>
+<th>验证与选参</th>
+<th style="text-align: right;">最佳 epoch</th>
+<th style="text-align: right;">当轮 train / val 修正量 MSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V7comb 最佳参数</td>
+<td>LayerCircle、LayerCylinder、ThreeAngle</td>
+<td style="text-align: right;">8 几何 × 19 方向 = 152</td>
+<td>SLICY，19 方向</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.009177404 / 0.048993025</td>
+</tr>
+</tbody>
+</table></div>
+<p>同一批 SLICY 数据有 74,762 个三角元。完整复电流相对误差先按方向计算，再对 19 个方向等权平均。单站 RCS RMSE 在 19 个 dBsm 点上以 MoM 为参照计算。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th>方法</th>
+<th style="text-align: right;">平均复电流相对误差</th>
+<th style="text-align: right;">单站 RCS RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PO</td>
+<td style="text-align: right;">65.03%</td>
+<td style="text-align: right;">17.21 dB</td>
+</tr>
+<tr>
+<td>V7comb</td>
+<td style="text-align: right;">53.12%</td>
+<td style="text-align: right;"><strong>3.82 dB</strong></td>
+</tr>
+<tr>
+<td>addTrain</td>
+<td style="text-align: right;"><strong>37.35%</strong></td>
+<td style="text-align: right;">4.02 dB</td>
+</tr>
+</tbody>
+</table></div>
+<p>addTrain 的电流误差比 V7comb 低 <strong>15.77 个百分点</strong>，19 个方向均改善；但 RCS RMSE 比 V7comb 高 <strong>0.20 dB</strong>。电流指标改善并未同步降低这一远场指标。PO、MoM 与预测 RCS 均由三角元复电流积分估算，不是 FEKO 原生远场。逐方向结果见 <code>record.md</code> 的“序号21”。</p>
+<h2>2. caseOther 新几何泛化观察</h2>
+<p>在 <code>caseOther</code> 新建九个与 V7comb、addTrain 训练及验证选参均无关的几何，分别以两份最佳参数纯推理。每个目标在 1 GHz、相同极化和 $\eta_0$ 归一化下，采用 $\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 共 19 个方向。Satellite2 是原 <code>satellite</code> 目录改名后的同一几何；PlaneF22 是当前约 2.45 m 长的缩比网格。这些是陆续完成的泛化尝试，尚非预先封存的最终测试集。</p>
+<p>下表电流误差是每方向完整复电流相对 L2 误差的平均值；RCS 是相对 MoM 的 19 点 dBsm RMSE，全部由三角元电流积分估算。两项均越低越好。<strong>✘</strong> 表示 V7comb 或 addTrain 至少有一项总体指标高于 PO；其余目标两份模型的两项总体指标均低于 PO。个别方向的退化仍可存在，详见 <code>record.md</code>“序号22”。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th style="text-align: right;">序号</th>
+<th>目标</th>
+<th style="text-align: right;">PO 电流误差</th>
+<th style="text-align: right;">V7comb 电流误差</th>
+<th style="text-align: right;">addTrain 电流误差</th>
+<th style="text-align: right;">PO RCS RMSE</th>
+<th style="text-align: right;">V7comb RCS RMSE</th>
+<th style="text-align: right;">addTrain RCS RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>CombFlare</td>
+<td style="text-align: right;">65.78%</td>
+<td style="text-align: right;">47.80%</td>
+<td style="text-align: right;">42.22%</td>
+<td style="text-align: right;">12.98 dB</td>
+<td style="text-align: right;">2.77 dB</td>
+<td style="text-align: right;">3.30 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Satellite2</td>
+<td style="text-align: right;">57.14%</td>
+<td style="text-align: right;">51.99%</td>
+<td style="text-align: right;">47.12%</td>
+<td style="text-align: right;">11.61 dB</td>
+<td style="text-align: right;">8.16 dB</td>
+<td style="text-align: right;">6.81 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Satellite3</td>
+<td style="text-align: right;">65.98%</td>
+<td style="text-align: right;">56.61%</td>
+<td style="text-align: right;">48.83%</td>
+<td style="text-align: right;">17.07 dB</td>
+<td style="text-align: right;">4.49 dB</td>
+<td style="text-align: right;">3.54 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Satellite4</td>
+<td style="text-align: right;">62.71%</td>
+<td style="text-align: right;">54.09%</td>
+<td style="text-align: right;">43.25%</td>
+<td style="text-align: right;">24.47 dB</td>
+<td style="text-align: right;">5.91 dB</td>
+<td style="text-align: right;">2.71 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">5 ✘</td>
+<td>SatelliteCylinder</td>
+<td style="text-align: right;">55.36%</td>
+<td style="text-align: right;">56.11%</td>
+<td style="text-align: right;">44.25%</td>
+<td style="text-align: right;">11.72 dB</td>
+<td style="text-align: right;">6.14 dB</td>
+<td style="text-align: right;">4.41 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">6 ✘</td>
+<td>SatelliteSphere</td>
+<td style="text-align: right;">52.66%</td>
+<td style="text-align: right;">57.28%</td>
+<td style="text-align: right;">49.31%</td>
+<td style="text-align: right;">2.42 dB</td>
+<td style="text-align: right;">4.75 dB</td>
+<td style="text-align: right;">3.41 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>PlaneF22</td>
+<td style="text-align: right;">68.99%</td>
+<td style="text-align: right;">63.60%</td>
+<td style="text-align: right;">61.88%</td>
+<td style="text-align: right;">8.30 dB</td>
+<td style="text-align: right;">5.36 dB</td>
+<td style="text-align: right;">6.89 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>TrihedralAngle</td>
+<td style="text-align: right;">71.27%</td>
+<td style="text-align: right;">40.14%</td>
+<td style="text-align: right;">36.05%</td>
+<td style="text-align: right;">26.04 dB</td>
+<td style="text-align: right;">7.53 dB</td>
+<td style="text-align: right;">7.84 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>Rocket</td>
+<td style="text-align: right;">60.06%</td>
+<td style="text-align: right;">54.21%</td>
+<td style="text-align: right;">49.71%</td>
+<td style="text-align: right;">8.81 dB</td>
+<td style="text-align: right;">6.81 dB</td>
+<td style="text-align: right;">4.98 dB</td>
+</tr>
+</tbody>
+</table></div>
+<p>SatelliteCylinder 的 V7comb 平均电流误差比 PO 高 <strong>0.75 个百分点</strong>，虽然其 RCS RMSE 降低；SatelliteSphere 的 V7comb 电流与 RCS 指标都退化，addTrain 的电流指标改善但 RCS RMSE 仍高于 PO。其余七个目标的总体指标相对 PO 均改善，但 PlaneF22、TrihedralAngle 和 CombFlare 的 addTrain RCS RMSE 比 V7comb 略高。addTrain 在九个目标上的平均电流误差均低于 V7comb；这支持其在本批几何上有更好的电流预测表现，尚不足以单独证明 V7comb 发生过拟合。</p></main></div></body>
 </html>
