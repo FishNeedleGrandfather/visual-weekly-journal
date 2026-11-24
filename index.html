@@ -429,7 +429,34 @@ $$</div>
 <p>上述飞机与 single 图中的 PO、MoM 和预测曲线均由三角元复电流进行远场积分估算，不是 FEKO 原生远场文件；因此这里只在相同积分口径下比较三条曲线。</p>
 <h1 id="week-2026-11-24">周志 2026/11/24</h1>
 <h2>1. 三个简单模型的迁移训练与 SLICY 验证</h2>
-<p>以 V7comb 最佳参数为起点，加入 <code>LayerCircle</code>、<code>LayerCylinder</code>、<code>ThreeAngle</code> 三个简单几何，与五个原有 CAD 族的训练变体组成 8 个训练几何进行迁移训练。每个几何均为 1 GHz、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 的 19 个方向，训练集共 152 个样本。</p>
+<p>以 V7comb 最佳参数为起点，加入 <code>LayerCircle</code>、<code>LayerCylinder</code>、<code>ThreeAngle</code> 三个简单几何，与五个原有 CAD 族的训练变体组成 8 个训练几何进行迁移训练，如图所示。每个几何均为 1 GHz、$\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 的 19 个方向，训练集共 152 个样本。</p>
+<h3>迁移训练中的 8 个几何</h3>
+<div class="table-scroll"><table class="model-gallery">
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="case1" src="assets/transfer_training_figures/case1.png"/><br/><strong>case1</strong></td>
+<td><img alt="case2" src="assets/transfer_training_figures/case2.png"/><br/><strong>case2</strong></td>
+<td><img alt="case3" src="assets/transfer_training_figures/case3.png"/><br/><strong>case3</strong></td>
+</tr>
+<tr>
+<td><img alt="case4" src="assets/transfer_training_figures/case4.png"/><br/><strong>case4</strong></td>
+<td><img alt="case5" src="assets/transfer_training_figures/case5.png"/><br/><strong>case5</strong></td>
+<td><img alt="LayerCircle" src="assets/transfer_training_figures/LayerCircle.png"/><br/><strong>LayerCircle</strong></td>
+</tr>
+<tr>
+<td><img alt="LayerCylinder" src="assets/transfer_training_figures/LayerCylinder.png"/><br/><strong>LayerCylinder</strong></td>
+<td><img alt="ThreeAngle" src="assets/transfer_training_figures/ThreeAngle.png"/><br/><strong>ThreeAngle</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 <div class="table-scroll"><table>
 <thead>
 <tr>
@@ -615,5 +642,82 @@ $$</div>
 </tr>
 </tbody>
 </table></div>
-<p>可能是因为 V7comb 对原来的数据集过拟合，导致对其他模型的预测不太好；经过三个简单几何模型的迁移训练后，电流误差普遍有所改善。</p></main></div></body>
+<p>可能是因为 V7comb 对原来的数据集过拟合，导致对其他模型的预测不太好；经过三个简单几何模型的迁移训练后，电流误差普遍有所改善。</p>
+<h2>3. Satellite4 的旋转与平移泛化</h2>
+<p>在 Satellite4 原模型的基础上，另外测试了一个旋转模型和两个平移模型：原版 Satellite4、旋转 $-60^\circ$ 的 Satellite4_-60、平移模型 Satellite4_u1 和 Satellite4_u2。四个模型均使用 $\theta=45^\circ$、$\phi=0^\circ:10^\circ:180^\circ$ 的 19 个方向，分别使用 V7comb 和 addTrain 参数进行预测。</p>
+<div class="table-scroll"><table>
+<thead>
+<tr>
+<th style="text-align: right;">序号</th>
+<th>模型</th>
+<th style="text-align: right;">PO 电流误差</th>
+<th style="text-align: right;">V7comb 电流误差</th>
+<th style="text-align: right;">addTrain 电流误差</th>
+<th style="text-align: right;">PO RCS RMSE</th>
+<th style="text-align: right;">V7comb RCS RMSE</th>
+<th style="text-align: right;">addTrain RCS RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Satellite4</td>
+<td style="text-align: right;">62.71%</td>
+<td style="text-align: right;">54.09%</td>
+<td style="text-align: right;">43.25%</td>
+<td style="text-align: right;">24.47 dB</td>
+<td style="text-align: right;">5.91 dB</td>
+<td style="text-align: right;">2.71 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Satellite4_-60</td>
+<td style="text-align: right;">64.23%</td>
+<td style="text-align: right;">68.72%</td>
+<td style="text-align: right;">65.07%</td>
+<td style="text-align: right;">17.208 dB</td>
+<td style="text-align: right;">7.966 dB</td>
+<td style="text-align: right;">5.257 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Satellite4_u1</td>
+<td style="text-align: right;">62.73%</td>
+<td style="text-align: right;">60.43%</td>
+<td style="text-align: right;">49.11%</td>
+<td style="text-align: right;">24.471 dB</td>
+<td style="text-align: right;">5.628 dB</td>
+<td style="text-align: right;">4.532 dB</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Satellite4_u2</td>
+<td style="text-align: right;">62.72%</td>
+<td style="text-align: right;">69.13%</td>
+<td style="text-align: right;">58.10%</td>
+<td style="text-align: right;">24.467 dB</td>
+<td style="text-align: right;">8.168 dB</td>
+<td style="text-align: right;">5.775 dB</td>
+</tr>
+</tbody>
+</table></div>
+<h3>模型截图（序号对应上表）</h3>
+<div class="table-scroll"><table class="model-gallery">
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="序号 1" src="assets/caseOther_figures/Satellite4.png"/><br/><strong>序号 1</strong></td>
+<td><img alt="序号 2" src="assets/caseOther_figures/Satellite4_-60.png"/><br/><strong>序号 2</strong></td>
+</tr>
+<tr>
+<td><img alt="序号 3" src="assets/caseOther_figures/Satellite4_u1.png"/><br/><strong>序号 3</strong></td>
+<td><img alt="序号 4" src="assets/caseOther_figures/Satellite4_u2.png"/><br/><strong>序号 4</strong></td>
+</tr>
+</tbody>
+</table></div></main></div></body>
 </html>
